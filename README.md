@@ -1,12 +1,15 @@
-# menu
+# Menu
 
-read $HOME/commands.txt as a list of items and present a menu for running those commands; runs commands in the background without exiting the menu
+Present menu for common commands
 
-## screenshot
+- Reads `$HOME/commands.txt` as a list of items and presents a menu for running those commands
+- Runs commands in the background without exiting the menu
+
+## Screenshot
 
 <img src="https://i.imgur.com/QW3WACw.png">
 
-## commands.txt example
+## `$HOME/commands.txt` example
 
 ```
 xrandr --output DP-4 --mode 2560x1600 --output DP-2 --mode 3840x2160 --above DP-4
@@ -25,4 +28,13 @@ pkill compton ; compton
 nm-applet
 transmission-gtk
 emacs
+```
+
+## i3 window manager keybind: mod+q pop up menu
+
+add to `.config/i3/config`
+
+```
+bindsym $mod+q exec xfce4-terminal --geometry "80x60" --title "mymenu" --command "python3 /path/to/main.py"
+for_window [title="mymenu"] floating enable
 ```
