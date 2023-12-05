@@ -4,6 +4,8 @@ Present menu for common commands
 
 - Reads `$HOME/commands.txt` as a list of items and presents a menu for running those commands
 - Runs commands in the background without exiting the menu
+- Uses only python standard library
+- Uses curses so can be used on servers
 
 ## Screenshot
 
@@ -28,6 +30,14 @@ pkill compton ; compton
 nm-applet
 transmission-gtk
 emacs
+```
+
+## Installation
+
+```
+wget https://raw.githubusercontent.com/dvolk/menu/master/main.py
+sudo mv main.py /usr/local/bin/mymenu
+sudo chmod a+x /usr/local/bin/mymenu
 ```
 
 ## i3 window manager keybind: mod+q pop up menu
