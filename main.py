@@ -4,30 +4,39 @@ import curses
 import subprocess
 import os
 import pathlib
+import sys
 
 
-def run_command(command):
-    """Runs a shell command in the background, detaches it, and suppresses its output."""
+def run_command(command, stdscr):
+    """Runs a shell command. If prefixed with '$', it runs in the foreground."""
     try:
-        # Open a handle to /dev/null
-        with open(os.devnull, "wb") as devnull:
-            subprocess.Popen(
-                command,
-                shell=True,
-                stdin=devnull,
-                stdout=devnull,
-                stderr=devnull,
-                close_fds=True,
-                preexec_fn=os.setsid,
-            )
-        return "OK"
+        if command.strip().startswith("$"):
+            command = command[1:]  # Remove the '$' prefix
+            curses.endwin()  # Temporarily exit ncurses to display command output
+            os.system(command)
+            input("\nPress Enter to continue...")  # Wait for user input
+            curses.doupdate()  # Redraw the screen
+            return "OK"
+        else:
+            # Run in background, suppress output
+            with open(os.devnull, "wb") as devnull:
+                subprocess.Popen(
+                    command,
+                    shell=True,
+                    stdin=devnull,
+                    stdout=devnull,
+                    stderr=devnull,
+                    close_fds=True,
+                    preexec_fn=os.setsid,
+                )
+            return "OK"
     except Exception as e:
         return f"Error: {e}"
 
 
 def display_menu(stdscr, menu, last_status):
     """Displays the menu and the status of the last command in a centered box."""
-    # stdscr.clear()
+    stdscr.clear()
     height, width = stdscr.getmaxyx()
 
     # Determine box dimensions
@@ -55,13 +64,13 @@ def display_menu(stdscr, menu, last_status):
     # Add menu items to the box
     for i, item in enumerate(menu):
         item_name = item
-        if len(item_name) > box_width - 10:
+        if len(item_name) > box_width - 9:
             item_name = item_name[: box_width - 10] + "..."
 
-        if i > ord('z') - ord('a'):
-            display_char = chr(ord('A') + (i - ord('z') + ord('a') - 1))
+        if i > ord("z") - ord("a"):
+            display_char = chr(ord("A") + (i - ord("z") + ord("a") - 1))
         else:
-            display_char = chr(ord('a') + i)
+            display_char = chr(ord("a") + i)
         box.addstr(i + 2, 2, f"{display_char}) {item_name}")
 
     # Add quit instruction and status message
@@ -86,18 +95,19 @@ def main(stdscr):
 
     last_status = None
     curses.curs_set(0)
+    curses.use_default_colors()
     while True:
         display_menu(stdscr, menu, last_status)
         c = stdscr.getch()
 
         if c == 27:  # 27 is escape key
             break
-        elif 97 <= c < 97 + len(menu): # lower case
+        elif 97 <= c < 97 + len(menu):  # lower case
             item = menu[c - 97]
-            last_status = run_command(item)
-        elif 65 <= c < 65 + len(menu): # upper case
+            last_status = run_command(item, stdscr)
+        elif 65 <= c < 65 + len(menu):  # upper case
             item = menu[c - 65 + 26]
-            last_status = run_command(item)
+            last_status = run_command(item, stdscr)
 
 
 curses.wrapper(main)
