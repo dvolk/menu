@@ -87,9 +87,13 @@ def display_menu(stdscr, menu, last_status):
 
 def main(stdscr):
     # get list of commands from $HOME/commands.txt
+    commands_file = pathlib.Path.home() / "commands.txt"
+    if len(sys.argv) > 1:
+        commands_file = pathlib.Path.home() / sys.argv[1]
+
     menu = [
         x
-        for x in (pathlib.Path.home() / "commands.txt").read_text().split("\n")
+        for x in commands_file.read_text().split("\n")
         if x.strip() and x.strip()[0] != "#"
     ]
 
@@ -100,7 +104,9 @@ def main(stdscr):
         display_menu(stdscr, menu, last_status)
         c = stdscr.getch()
 
-        if c == 27:  # 27 is escape key
+        if c == 10:  # 10 is enter key
+            break
+        elif c == 27:  # 27 is escape key
             break
         elif 97 <= c < 97 + len(menu):  # lower case
             item = menu[c - 97]
