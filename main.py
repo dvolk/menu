@@ -29,6 +29,7 @@ def run_command(command, stdscr):
                     close_fds=True,
                     preexec_fn=os.setsid,
                 )
+            os.system(f"notify-send 'running: {command}'")
             return "OK"
     except Exception as e:
         return f"Error: {e}"
