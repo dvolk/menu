@@ -35,7 +35,7 @@ def run_command(command, stdscr):
         return f"Error: {e}"
 
 
-def display_menu(stdscr, menu, last_status):
+def display_menu(stdscr, menu, last_command, last_status):
     """Displays the menu and the status of the last command in a centered box."""
     stdscr.clear()
     height, width = stdscr.getmaxyx()
@@ -77,7 +77,11 @@ def display_menu(stdscr, menu, last_status):
     # Add quit instruction and status message
     box.addstr(i + 3, 2, "esc) quit")
     if last_status:
-        box.addstr(box_height - 1, 2, f" Last Command Status: {last_status} ")
+        box.addstr(
+            box_height - 1,
+            2,
+            f" Last Command [{last_command[:10]}] Status: {last_status} ",
+        )
     else:
         box.addstr(box_height - 1, 2, f" Last Command Status: ")
 
@@ -99,10 +103,11 @@ def main(stdscr):
     ]
 
     last_status = None
+    last_command = None
     curses.curs_set(0)
     curses.use_default_colors()
     while True:
-        display_menu(stdscr, menu, last_status)
+        display_menu(stdscr, menu, last_command, last_status)
         c = stdscr.getch()
 
         if c == 10:  # 10 is enter key
@@ -111,9 +116,11 @@ def main(stdscr):
             break
         elif 97 <= c < 97 + len(menu):  # lower case
             item = menu[c - 97]
+            last_command = item
             last_status = run_command(item, stdscr)
         elif 65 <= c < 65 + len(menu):  # upper case
             item = menu[c - 65 + 26]
+            last_command = item
             last_status = run_command(item, stdscr)
 
 
